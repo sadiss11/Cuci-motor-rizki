@@ -4,7 +4,7 @@
 // yang menjalankan logika yang sama di dalam transaksi database.
 import { createContext, useCallback, useContext, useEffect, useRef, useState } from "react";
 import type { DB, Role } from "./types";
-import { DB_VERSION, seedDB } from "./seed";
+import { DB_VERSION, migrate, seedDB } from "./seed";
 
 const KEY = "cmr_db_v1";
 const SESSION = "cmr_session";
@@ -24,8 +24,11 @@ function load(): DB {
   try {
     const raw = localStorage.getItem(KEY);
     if (raw) {
-      const parsed = JSON.parse(raw) as DB;
-      if (parsed.version === DB_VERSION) return parsed;
+      const parsed = migrate(JSON.parse(raw) as DB);
+      if (parsed.version === DB_VERSION) {
+        save(parsed);
+        return parsed;
+      }
     }
   } catch {}
   const fresh = seedDB();
@@ -54,7 +57,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     } catch {}
     const onStorage = (e: StorageEvent) => {
       if (e.key === KEY && e.newValue) {
-        const next = JSON.parse(e.newValue) as DB;
+        const next = migrate(JSON.parse(e.newValue) as DB);
         ref.current = next;
         setDb(next);
       }

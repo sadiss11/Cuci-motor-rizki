@@ -5,6 +5,9 @@ import { downloadCsv, fmtDateTime, rupiah } from "@/lib/format";
 import { groupRows, presetRange, summarize, type Group, type Range } from "@/lib/report";
 import { Button, Card, Empty, PageHeader, Segmented, Stat } from "@/components/ui";
 import { RangePicker } from "@/components/RangePicker";
+import { ChartCard, ColumnChart, HBarChart, VIZ } from "@/components/charts";
+import { compactRp } from "@/lib/format";
+import type { DB } from "@/lib/types";
 
 export default function LaporanPage() {
   const { db } = useApp();
@@ -58,8 +61,16 @@ export default function LaporanPage() {
         <Stat label="Paket terpopuler" value={s.topServices[0]?.name ?? "-"} hint={s.topServices[0] ? `${s.topServices[0].count} transaksi` : ""} />
       </div>
 
+      <div className="no-print mb-3 flex flex-wrap items-center justify-between gap-2">
+        <h2 className="text-sm font-semibold uppercase tracking-wide text-muted">Grafik</h2>
+        <div className="w-full sm:w-72">
+          <Segmented label="Kelompok grafik" value={group} onChange={setGroup} options={[{ value: "harian", label: "Harian" }, { value: "mingguan", label: "Mingguan" }, { value: "bulanan", label: "Bulanan" }]} />
+        </div>
+      </div>
+      <Charts db={db} s={s} rows={rows} group={group} />
+
       <div className="grid gap-5 lg:grid-cols-[1fr_320px]">
-        <Card title="Rekap" action={<div className="no-print w-64"><Segmented label="Kelompok" value={group} onChange={setGroup} options={[{ value: "harian", label: "Harian" }, { value: "mingguan", label: "Mingguan" }, { value: "bulanan", label: "Bulanan" }]} /></div>}>
+        <Card title="Rekap" action={<div className="no-print w-full sm:w-64"><Segmented label="Kelompok" value={group} onChange={setGroup} options={[{ value: "harian", label: "Harian" }, { value: "mingguan", label: "Mingguan" }, { value: "bulanan", label: "Bulanan" }]} /></div>}>
           {rows.length === 0 ? (
             <Empty>Tidak ada data.</Empty>
           ) : (
@@ -132,5 +143,84 @@ export default function LaporanPage() {
         </ul>
       </Card>
     </>
+  );
+}
+
+const PAY_NAMES: Record<string, string> = { tunai: "Tunai", transfer: "Transfer", qris: "QRIS", voucher: "Voucher" };
+
+function shortKey(k: string, g: Group) {
+  if (g === "bulanan") return k.slice(5, 7) + "/" + k.slice(2, 4);
+  const d = k.replace("Minggu ", "");
+  return (g === "mingguan" ? "Mg " : "") + d.slice(8, 10) + "/" + d.slice(5, 7);
+}
+
+function Charts({ db, s, rows, group }: { db: DB; s: ReturnType<typeof summarize>; rows: ReturnType<typeof groupRows>; group: Group }) {
+  const asc = [...rows].reverse();
+  const pts = asc.map((r) => ({ ...r, label: shortKey(r.key, group), full: r.key }));
+
+  const hours = Array.from({ length: 14 }, (_, i) => i + 7).map((h) => ({
+    label: String(h).padStart(2, "0"),
+    full: `Jam ${String(h).padStart(2, "0")}.00–${String(h).padStart(2, "0")}.59`,
+    values: [s.valid.filter((o) => new Date(o.createdAt).getHours() === h).length],
+  }));
+
+  const methods = new Map<string, { n: number; amt: number }>();
+  for (const o of s.paid) {
+    const e = methods.get(o.payMethod) ?? { n: 0, amt: 0 };
+    e.n++;
+    e.amt += o.total;
+    methods.set(o.payMethod, e);
+  }
+  const methodRows = [...methods.entries()].map(([k, v]) => ({ label: PAY_NAMES[k] ?? k, value: v.n, sub: k === "voucher" ? "" : compactRp(v.amt) })).sort((a, b) => b.value - a.value);
+
+  const workers = db.employees
+    .filter((e) => e.position === "pencuci")
+    .map((e) => ({ label: e.name, value: s.valid.filter((o) => o.status === "selesai" && o.workerIds?.includes(e.id)).length }))
+    .sort((a, b) => b.value - a.value);
+
+  const fmtRp = (n: number) => rupiah(n);
+  const fmtN = (n: number) => `${n} transaksi`;
+
+  return (
+    <div className="mb-5 grid gap-5 lg:grid-cols-2">
+      <ChartCard title="Omzet layanan" desc="Transaksi lunas per periode" table={{ head: ["Periode", "Transaksi", "Omzet"], rows: asc.map((r) => [r.key, r.transaksi, rupiah(r.omzet)]) }}>
+        <ColumnChart data={pts.map((p) => ({ label: p.label, full: p.full, values: [p.omzet] }))} series={[{ name: "Omzet", color: VIZ.s1 }]} format={fmtRp} axisFormat={compactRp} />
+      </ChartCard>
+      <ChartCard title="Kas masuk vs kas keluar" table={{ head: ["Periode", "Masuk", "Keluar"], rows: asc.map((r) => [r.key, rupiah(r.masuk), rupiah(r.keluar)]) }}>
+        <ColumnChart
+          data={pts.map((p) => ({ label: p.label, full: p.full, values: [p.masuk, p.keluar] }))}
+          series={[
+            { name: "Kas masuk", color: VIZ.s1 },
+            { name: "Kas keluar", color: VIZ.s2 },
+          ]}
+          format={fmtRp}
+          axisFormat={compactRp}
+        />
+      </ChartCard>
+      <ChartCard title="Selisih operasional" desc="Kas masuk − kas keluar. Biru = surplus, merah = minus" table={{ head: ["Periode", "Selisih"], rows: asc.map((r) => [r.key, rupiah(r.masuk - r.keluar)]) }}>
+        <ColumnChart
+          data={pts.map((p) => ({ label: p.label, full: p.full, values: [p.masuk - p.keluar] }))}
+          series={[{ name: "Selisih", color: VIZ.s1 }]}
+          colorFor={(v) => (v < 0 ? VIZ.neg : VIZ.s1)}
+          format={(n) => (n < 0 ? "−" : "") + rupiah(Math.abs(n))}
+          axisFormat={compactRp}
+        />
+      </ChartCard>
+      <ChartCard title="Jam ramai" desc="Jumlah transaksi per jam masuk" table={{ head: ["Jam", "Transaksi"], rows: hours.map((h) => [h.full, h.values[0]]) }}>
+        <ColumnChart data={hours} series={[{ name: "Transaksi", color: VIZ.s1 }]} format={fmtN} axisFormat={(n) => String(Math.round(n))} labelEvery={1} height={200} />
+      </ChartCard>
+      <ChartCard title="Paket terpopuler" desc="Jumlah transaksi & omzet" table={{ head: ["Paket", "Transaksi", "Omzet"], rows: s.topServices.map((t) => [t.name, t.count, rupiah(t.omzet)]) }}>
+        <HBarChart rows={s.topServices.map((t) => ({ label: t.name, value: t.count, sub: compactRp(t.omzet) }))} format={(n) => `${n}x`} />
+      </ChartCard>
+      <ChartCard title="Metode pembayaran" desc="Jumlah transaksi lunas & nilainya" table={{ head: ["Metode", "Transaksi", "Nilai"], rows: methodRows.map((m) => [m.label, m.value, m.sub || "-"]) }}>
+        <HBarChart rows={methodRows} format={(n) => `${n}x`} />
+      </ChartCard>
+      <ChartCard title="Pengeluaran per kategori" table={{ head: ["Kategori", "Nominal"], rows: s.keluarByCat.map(([k, v]) => [k, rupiah(v)]) }}>
+        <HBarChart rows={s.keluarByCat.map(([k, v]) => ({ label: k[0].toUpperCase() + k.slice(1), value: v }))} color={VIZ.s2} format={compactRp} />
+      </ChartCard>
+      <ChartCard title="Motor dikerjakan per karyawan" desc="Pesanan selesai; motor yang dikerjakan berdua dihitung untuk masing-masing" table={{ head: ["Karyawan", "Motor"], rows: workers.map((w) => [w.label, w.value]) }}>
+        <HBarChart rows={workers} format={(n) => `${n} motor`} />
+      </ChartCard>
+    </div>
   );
 }

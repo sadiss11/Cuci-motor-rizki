@@ -41,6 +41,7 @@ export interface NewOrderInput {
   payStatus: PayStatus;
   received: number;
   voucherId?: string;
+  workerIds?: string[];
 }
 
 export function createOrder(db: DB, input: NewOrderInput, by: Role): Order {
@@ -95,6 +96,7 @@ export function createOrder(db: DB, input: NewOrderInput, by: Role): Order {
     received: payMethod === "tunai" ? input.received : total,
     paidAt: payStatus === "lunas" ? now() : undefined,
     status: "baru",
+    workerIds: (input.workerIds ?? []).filter((id) => db.employees.some((e) => e.id === id)),
   };
   db.orders.unshift(order);
   if (voucherId) {
@@ -179,6 +181,19 @@ function cancelOrder(db: DB, o: Order, by: Role, reason: string) {
   return o;
 }
 
+export function setWorkers(db: DB, orderId: string, workerIds: string[], by: Role) {
+  const o = db.orders.find((x) => x.id === orderId);
+  if (!o) throw new Error("Pesanan tidak ditemukan");
+  if (o.status === "batal") throw new Error("Pesanan batal tidak dapat diubah");
+  const locked = db.payrolls.some(
+    (p) => !p.voided && [...(o.workerIds ?? []), ...workerIds].includes(p.employeeId) && dayKey(o.doneAt ?? o.createdAt) >= p.from && dayKey(o.doneAt ?? o.createdAt) <= p.to,
+  );
+  if (locked) throw new Error("Gaji periode ini sudah dibayar — batalkan slip gaji dulu untuk mengubah pencuci");
+  o.workerIds = workerIds.filter((id) => db.employees.some((e) => e.id === id));
+  const names = o.workerIds.map((id) => db.employees.find((e) => e.id === id)?.name).join(", ");
+  audit(db, by, "transaksi.pencuci", `${o.invoiceNo} → ${names || "-"}`);
+}
+
 /** Stempel hanya untuk transaksi berbayar, lunas, selesai, pelanggan ber-WA. Idempoten per order. */
 export function applyLoyalty(db: DB, o: Order) {
   if (o.status !== "selesai" || o.payStatus !== "lunas" || o.total <= 0 || o.voucherId || !o.customerId) return;
@@ -235,6 +250,7 @@ export function voidCash(db: DB, id: string, reason: string, by: Role) {
   const c = db.cash.find((x) => x.id === id);
   if (!c) throw new Error("Entri tidak ditemukan");
   if (c.source === "order") throw new Error("Entri dari transaksi dibatalkan lewat pembatalan pesanan");
+  if (c.source === "payroll") throw new Error("Entri gaji dibatalkan lewat menu Karyawan → Penggajian");
   if (!reason.trim()) throw new Error("Alasan wajib diisi");
   c.voided = { at: now(), by, reason };
   audit(db, by, "kas.batal", `${c.type} ${c.category} ${c.amount}: ${reason}`);

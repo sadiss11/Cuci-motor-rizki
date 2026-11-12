@@ -10,6 +10,7 @@ export interface Service {
   duration: string;
   prices: Record<Size, number>;
   note?: string;
+  features?: string[]; // keunggulan (dari spanduk)
   active: boolean;
 }
 
@@ -42,6 +43,7 @@ export interface Order {
   paidAt?: string;
   status: OrderStatus;
   doneAt?: string;
+  workerIds?: string[]; // karyawan pencuci yang mengerjakan
 }
 
 export type CashCategory =
@@ -62,7 +64,7 @@ export interface CashEntry {
   amount: number;
   note: string;
   pic: string;
-  source: "order" | "manual";
+  source: "order" | "manual" | "payroll";
   orderId?: string;
   voided?: { at: string; by: Role; reason: string };
   createdBy: Role;
@@ -108,6 +110,58 @@ export interface Settings {
   loyaltyRewardServiceId: string;
   promoTemplate: string;
   pins: Record<Role, string>;
+  tagline: string;
+  commission: Record<string, CommissionRule>; // komisi standar per paket
+  bonusTiers: BonusTier[];
+}
+
+export interface CommissionRule {
+  type: "persen" | "nominal";
+  value: number;
+}
+
+export type PayPeriod = "harian" | "mingguan" | "bulanan";
+
+export interface BonusTier {
+  id: string;
+  period: PayPeriod; // target dihitung per hari / minggu / bulan
+  minMotors: number;
+  amount: number;
+}
+
+export interface Employee {
+  id: string;
+  name: string;
+  position: "pencuci" | "kasir" | "lainnya";
+  phone?: string;
+  payType: PayPeriod; // gaji pokok per hari / minggu / bulan
+  baseRate: number;
+  allowance: number; // uang makan per hari masuk
+  commissionMode: "standar" | "khusus" | "tanpa";
+  customCommission: Record<string, CommissionRule>;
+  targetBonus: boolean;
+  active: boolean;
+  joinedAt: string;
+}
+
+export interface PayrollRecord {
+  id: string;
+  employeeId: string;
+  employeeName: string;
+  from: string;
+  to: string;
+  daysWorked: number;
+  motors: number;
+  base: number;
+  allowance: number;
+  commission: number;
+  targetBonus: number;
+  adjustments: { label: string; amount: number }[]; // negatif = potongan/kasbon
+  total: number;
+  paidAt: string;
+  paidBy: Role;
+  cashEntryId?: string;
+  voided?: { at: string; by: Role; reason: string };
 }
 
 export interface DB {
@@ -121,5 +175,7 @@ export interface DB {
   loyaltyRewards: LoyaltyReward[];
   consents: PromoConsent[];
   audit: AuditLog[];
+  employees: Employee[];
+  payrolls: PayrollRecord[];
   seq: number;
 }

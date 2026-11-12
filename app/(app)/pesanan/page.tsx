@@ -1,7 +1,7 @@
 "use client";
 import { useMemo, useState } from "react";
 import { useApp } from "@/lib/store";
-import { markPaid, setStatus } from "@/lib/logic";
+import { markPaid, setStatus, setWorkers } from "@/lib/logic";
 import { dayKey, fmtDateTime, rupiah } from "@/lib/format";
 import type { Order, OrderStatus, PayMethod } from "@/lib/types";
 import { Badge, Button, Card, Empty, Input, PageHeader, Select, statusTone } from "@/components/ui";
@@ -69,7 +69,8 @@ export default function PesananPage() {
 }
 
 function OrderRow({ o, open, onToggle }: { o: Order; open: boolean; onToggle: () => void }) {
-  const { role, commit } = useApp();
+  const { db, role, commit } = useApp();
+  const washers = db.employees.filter((e) => e.position === "pencuci" && (e.active || o.workerIds?.includes(e.id)));
   const [err, setErr] = useState("");
   const [method, setMethod] = useState<PayMethod>(o.payMethod === "voucher" ? "tunai" : o.payMethod);
   const run = (fn: () => void) => {
@@ -136,6 +137,28 @@ function OrderRow({ o, open, onToggle }: { o: Order; open: boolean; onToggle: ()
               >
                 Batalkan
               </Button>
+            </div>
+          )}
+          {washers.length > 0 && (
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="text-xs text-muted">Pencuci:</span>
+              {washers.map((e) => {
+                const on = !!o.workerIds?.includes(e.id);
+                return (
+                  <button
+                    key={e.id}
+                    disabled={closed}
+                    aria-pressed={on}
+                    onClick={() =>
+                      run(() => commit((d) => setWorkers(d, o.id, on ? (o.workerIds ?? []).filter((x) => x !== e.id) : [...(o.workerIds ?? []), e.id], role)))
+                    }
+                    className={`h-8 rounded-full border px-3 text-xs font-medium disabled:opacity-50 ${on ? "border-ink bg-ink text-white" : "border-line bg-paper"}`}
+                  >
+                    {on ? "✓ " : ""}
+                    {e.name}
+                  </button>
+                );
+              })}
             </div>
           )}
           {err && <p className="text-accent" role="alert">{err}</p>}

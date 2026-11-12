@@ -1,21 +1,94 @@
-import type { DB, PayMethod, Service, Size } from "./types";
+import type { DB, Employee, PayMethod, Service, Settings, Size } from "./types";
 import { addCash, createOrder, markPaid, setClock, setConsent, setStatus } from "./logic";
+import { savePayroll } from "./payroll";
+import { dayKey } from "./format";
 
-export const DB_VERSION = 1;
+export const DB_VERSION = 2;
 
 export const DEFAULT_SERVICES: Service[] = [
-  { id: "kinclong", name: "Cuci Kinclong", duration: "20–30 menit", prices: { kecil: 17000, sedang: 20000, besar: 25000 }, active: true },
-  { id: "premium", name: "Cuci Premium", duration: "30–60 menit", prices: { kecil: 30000, sedang: 35000, besar: 40000 }, active: true },
+  {
+    id: "kinclong",
+    name: "Cuci Kinclong",
+    duration: "±20–30 menit",
+    prices: { kecil: 17000, sedang: 20000, besar: 25000 },
+    features: ["Motor bersih dari debu & kotoran", "Jok lebih bersih dan nyaman", "Ban tampak hitam segar"],
+    active: true,
+  },
+  {
+    id: "premium",
+    name: "Cuci Premium",
+    duration: "±30–60 menit",
+    prices: { kecil: 30000, sedang: 35000, besar: 40000 },
+    features: ["Body lebih mengkilap", "Cat lebih terlindungi dari kusam", "Ban tampak hitam seperti baru", "Jamur kaca spion dibersihkan"],
+    active: true,
+  },
   {
     id: "poles",
     name: "Poles Body",
-    duration: "2–4 jam",
+    duration: "±2–4 jam",
     prices: { kecil: 125000, sedang: 150000, besar: 175000 },
-    note: "Termasuk Cuci Premium. Tidak untuk body doff/matte.",
+    note: "Sudah include pencucian premium. Tidak melayani poles body doff (matte finish).",
+    features: ["Baret halus berkurang", "Warna motor lebih hidup", "Kilap motor kembali maksimal", "Tampilan lebih segar seperti motor baru"],
     active: true,
   },
-  { id: "detailing", name: "Full Detailing", duration: "7–10 jam", prices: { kecil: 200000, sedang: 300000, besar: 350000 }, active: true },
+  {
+    id: "detailing",
+    name: "Full Detailing",
+    duration: "±7–10 jam",
+    prices: { kecil: 200000, sedang: 300000, besar: 350000 },
+    note: "Hasil detailing menyesuaikan kondisi motor.",
+    features: ["Dibersihkan hingga area tersembunyi", "Body lebih kinclong", "Baret halus berkurang", "Tampilan lebih segar seperti baru", "Finishing premium"],
+    active: true,
+  },
 ];
+
+export const DEFAULT_PAY_SETTINGS: Pick<Settings, "tagline" | "commission" | "bonusTiers"> = {
+  tagline: "Bersih, Kinclong, Pikiran Jernih",
+  commission: {
+    kinclong: { type: "nominal", value: 5000 },
+    premium: { type: "nominal", value: 8000 },
+    poles: { type: "persen", value: 20 },
+    detailing: { type: "persen", value: 20 },
+  },
+  bonusTiers: [
+    { id: "t1", period: "harian", minMotors: 8, amount: 15000 },
+    { id: "t2", period: "harian", minMotors: 12, amount: 30000 },
+    { id: "t3", period: "bulanan", minMotors: 150, amount: 250000 },
+  ],
+};
+
+export function defaultEmployees(joinedAt: string): Employee[] {
+  const base = { customCommission: {}, active: true, joinedAt };
+  return [
+    { ...base, id: "emp-dimas", name: "Dimas", position: "pencuci", phone: "6281234560101", payType: "harian", baseRate: 50000, allowance: 15000, commissionMode: "standar", targetBonus: true },
+    {
+      ...base,
+      id: "emp-agus",
+      name: "Agus",
+      position: "pencuci",
+      phone: "6281234560102",
+      payType: "mingguan",
+      baseRate: 300000,
+      allowance: 15000,
+      commissionMode: "khusus",
+      customCommission: { poles: { type: "persen", value: 25 }, detailing: { type: "persen", value: 25 } },
+      targetBonus: true,
+    },
+    { ...base, id: "emp-sari", name: "Sari", position: "kasir", phone: "6281234560103", payType: "bulanan", baseRate: 1800000, allowance: 0, commissionMode: "tanpa", targetBonus: false },
+  ];
+}
+
+/** Migrasi data demo lama (v1) tanpa menghapus transaksi yang sudah ada. */
+export function migrate(d: DB): DB {
+  if (d.version === 1) {
+    d.settings = { ...DEFAULT_PAY_SETTINGS, ...d.settings };
+    d.services = d.services.map((s) => ({ ...s, features: s.features ?? DEFAULT_SERVICES.find((x) => x.id === s.id)?.features ?? [] }));
+    d.employees = defaultEmployees(new Date().toISOString());
+    d.payrolls = [];
+    d.version = 2;
+  }
+  return d;
+}
 
 export function emptyDB(): DB {
   return {
@@ -29,6 +102,7 @@ export function emptyDB(): DB {
       promoTemplate:
         "Halo {nama}! Motor sudah waktunya dicuci lagi? Datang ke {usaha} minggu ini ya. Balas STOP jika tidak ingin menerima info promo.",
       pins: { owner: "1234", kasir: "0000" },
+      ...structuredClone(DEFAULT_PAY_SETTINGS),
     },
     services: structuredClone(DEFAULT_SERVICES),
     customers: [],
@@ -38,6 +112,8 @@ export function emptyDB(): DB {
     loyaltyRewards: [],
     consents: [],
     audit: [],
+    employees: [],
+    payrolls: [],
     seq: 0,
   };
 }
@@ -82,6 +158,8 @@ export function seedDB(): DB {
   }
   for (let i = 0; i < 40; i++) jobs.push({ day: Math.floor(r() * DAYS), hour: 8 + Math.floor(r() * 9) });
   jobs.sort((a, b) => b.day - a.day || a.hour - b.hour);
+  db.employees = defaultEmployees(at(DAYS + 30, 8));
+  const washers = ["emp-dimas", "emp-agus"];
 
   for (const j of jobs) {
     const day = Math.min(DAYS, Math.max(0, j.day));
@@ -104,6 +182,7 @@ export function seedDB(): DB {
         payMethod: method,
         payStatus: "belum",
         received: 0,
+        workerIds: serviceId === "poles" || serviceId === "detailing" ? (r() < 0.5 ? washers : [pick(washers)]) : [pick(washers)],
       },
       "kasir",
     );
@@ -130,9 +209,7 @@ export function seedDB(): DB {
     [25, "sabun", 180000, "Sabun & shampo motor 5L"],
     [20, "bahan poles", 250000, "Compound + wax"],
     [18, "listrik", 320000, "Token listrik"],
-    [14, "gaji", 700000, "Gaji mingguan 2 pencuci"],
     [11, "sabun", 150000, "Sabun & semir ban"],
-    [7, "gaji", 700000, "Gaji mingguan 2 pencuci"],
     [5, "lain-lain", 85000, "Lap microfiber"],
     [1, "bahan poles", 120000, "Wax"],
   ];
@@ -148,6 +225,17 @@ export function seedDB(): DB {
     setClock(c.createdAt);
     if (i % 3 !== 2) setConsent(db, c.id, true, "Kasir - persetujuan lisan saat transaksi", "kasir");
   });
+
+  // contoh slip gaji minggu lalu (Senin–Minggu) untuk Dimas
+  const mon = new Date(base);
+  mon.setDate(mon.getDate() - ((mon.getDay() + 6) % 7) - 7);
+  const sun = new Date(mon);
+  sun.setDate(sun.getDate() + 6);
+  setClock(at(Math.round((base.getTime() - sun.getTime()) / 86400000), 19));
+  const dimas = db.employees[0];
+  try {
+    savePayroll(db, dimas, { from: dayKey(mon.toISOString()), to: dayKey(sun.toISOString()) }, 6, [{ label: "Kasbon", amount: -50000 }], "owner");
+  } catch {}
 
   setClock(null);
   return db;

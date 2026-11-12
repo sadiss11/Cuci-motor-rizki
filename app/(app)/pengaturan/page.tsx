@@ -29,7 +29,17 @@ export default function PengaturanPage() {
         const o = d.services.find((x) => x.id === n.id);
         if (o && JSON.stringify(o) !== JSON.stringify(n)) changes.push(`paket ${n.name}`);
       }
-      d.settings = { ...s, businessWa: wa };
+      d.settings = {
+        ...d.settings,
+        businessName: s.businessName,
+        businessWa: wa,
+        address: s.address,
+        tagline: s.tagline,
+        loyaltyThreshold: s.loyaltyThreshold,
+        loyaltyRewardServiceId: s.loyaltyRewardServiceId,
+        promoTemplate: s.promoTemplate,
+        pins: s.pins,
+      };
       d.services = services;
       d.customers.forEach((c) => syncRewards(d, c.id));
       audit(d, role, "pengaturan.ubah", changes.join(", ") || "profil usaha");
@@ -42,13 +52,16 @@ export default function PengaturanPage() {
 
   return (
     <>
-      <PageHeader title="Pengaturan" desc="Hanya owner. Semua perubahan tercatat di audit trail." action={<Button onClick={save}>Simpan perubahan</Button>} />
+      <PageHeader title="Pengaturan" desc="Hanya owner. Semua perubahan tercatat di audit trail. Gaji, komisi & bonus diatur di menu Karyawan." action={<Button onClick={save}>Simpan perubahan</Button>} />
       {(msg || err) && <p className={`mb-4 text-sm ${err ? "text-accent" : "text-ok"}`} role="status">{err || msg}</p>}
       <div className="grid gap-5 lg:grid-cols-2">
         <Card title="Profil usaha">
           <div className="space-y-3">
             <Field label="Nama usaha">
               <Input value={s.businessName} onChange={(e) => setS({ ...s, businessName: e.target.value })} />
+            </Field>
+            <Field label="Tagline (tampil di kasir)">
+              <Input value={s.tagline} onChange={(e) => setS({ ...s, tagline: e.target.value })} />
             </Field>
             <Field label="Nomor WhatsApp usaha">
               <Input value={s.businessWa} onChange={(e) => setS({ ...s, businessWa: e.target.value })} inputMode="tel" />

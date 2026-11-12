@@ -6,6 +6,7 @@ import { normalizePhone, parseAmount, rupiah, SIZES } from "@/lib/format";
 import type { Order, PayMethod, PayStatus, Size } from "@/lib/types";
 import { Badge, Button, Card, Field, Input, PageHeader, Segmented, StampBar } from "@/components/ui";
 import { InvoiceActions } from "@/components/InvoiceActions";
+import { CheckDot, ServiceIcon, priceK } from "@/components/ServiceIcon";
 
 export default function KasirPage() {
   const { db, role, commit } = useApp();
@@ -22,6 +23,8 @@ export default function KasirPage() {
   const [useVoucher, setUseVoucher] = useState<string>("");
   const [error, setError] = useState("");
   const [saved, setSaved] = useState<Order | null>(null);
+  const activeWashers = db.employees.filter((e) => e.active && e.position === "pencuci");
+  const [workers, setWorkers] = useState<string[]>([]);
 
   const svc = db.services.find((s) => s.id === serviceId);
   const price = svc?.prices[size] ?? 0;
@@ -71,12 +74,14 @@ export default function KasirPage() {
             payStatus,
             received: recv,
             voucherId: voucher?.id,
+            workerIds: workers,
           },
           role,
         ),
       );
       setSaved(o);
       reset();
+      setWorkers([]);
       window.scrollTo({ top: 0, behavior: "smooth" });
     } catch (err) {
       setError((err as Error).message);
@@ -85,7 +90,7 @@ export default function KasirPage() {
 
   return (
     <>
-      <PageHeader title="Kasir" desc="Pilih paket, ukuran motor, lalu simpan & buat invoice." />
+      <PageHeader title="Kasir" desc="Ketuk harga sesuai ukuran motor, isi pelanggan, lalu simpan & buat invoice." />
 
       {saved && (
         <Card className="mb-5 border-ink" title={`Tersimpan · ${saved.invoiceNo}`} action={<Button size="sm" variant="ghost" onClick={() => setSaved(null)}>Tutup</Button>}>
@@ -102,50 +107,95 @@ export default function KasirPage() {
 
       <form onSubmit={submit} className="grid gap-5 lg:grid-cols-[1fr_340px]">
         <div className="space-y-5">
-          <Card title="1. Layanan">
-            <div className="grid gap-2 sm:grid-cols-2" role="radiogroup" aria-label="Paket">
+          <section className="overflow-hidden rounded-lg border-2 border-ink bg-paper">
+            <div className="relative flex items-center justify-between gap-3 bg-ink px-4 py-3 text-white">
+              <div>
+                <div className="font-display text-xl uppercase leading-none tracking-wide sm:text-2xl">{db.settings.businessName}</div>
+                <div className="mt-1 text-xs italic text-white/70">— {db.settings.tagline} —</div>
+              </div>
+              <div
+                aria-hidden
+                className="h-10 w-16 shrink-0 opacity-90"
+                style={{ backgroundImage: "repeating-conic-gradient(#fff 0 25%, #111 0 50%)", backgroundSize: "10px 10px" }}
+              />
+            </div>
+            <div className="divide-y-2 divide-ink" role="radiogroup" aria-label="Paket dan ukuran motor">
               {services.map((s) => {
                 const on = s.id === serviceId;
                 const locked = !!voucher && s.id !== voucher.serviceId;
                 return (
-                  <button
-                    type="button"
-                    role="radio"
-                    aria-checked={on}
-                    disabled={locked}
-                    key={s.id}
-                    onClick={() => setServiceId(s.id)}
-                    className={`rounded-md border p-3 text-left disabled:opacity-40 ${on ? "border-ink bg-ink text-white" : "border-line hover:border-ink"}`}
-                  >
-                    <div className="font-semibold">{s.name}</div>
-                    <div className={`text-xs ${on ? "text-white/70" : "text-muted"}`}>{s.duration} (estimasi)</div>
-                    <div className="num mt-1 text-sm">
-                      {rupiah(s.prices.kecil)} – {rupiah(s.prices.besar)}
+                  <div key={s.id} className={`grid gap-3 p-3 sm:grid-cols-[1fr_200px] ${locked ? "opacity-35" : ""} ${on ? "bg-soft" : ""}`}>
+                    <button type="button" disabled={locked} onClick={() => setServiceId(s.id)} className="flex items-start gap-3 text-left">
+                      <ServiceIcon id={s.id} size={60} />
+                      <span className="min-w-0 flex-1">
+                        <span className="flex flex-wrap items-center gap-2">
+                          <span className="font-display text-xl uppercase leading-none">{s.name}</span>
+                          {on && <span className="h-2 w-2 rounded-full bg-accent" aria-label="dipilih" />}
+                        </span>
+                        <span className="mt-1 inline-flex items-center gap-1 rounded border border-ink px-1.5 py-0.5 text-[11px] font-semibold">⏱ {s.duration}</span>
+                        <ul className={`mt-2 space-y-1 text-xs ${on ? "" : "hidden sm:block"}`}>
+                          {(s.features ?? []).map((f) => (
+                            <li key={f} className="flex gap-1.5">
+                              <CheckDot />
+                              {f}
+                            </li>
+                          ))}
+                        </ul>
+                        {s.note && on && <span className="mt-2 block rounded border border-line bg-paper px-2 py-1 text-[11px] text-muted">Catatan: {s.note}</span>}
+                      </span>
+                    </button>
+                    <div className="grid grid-cols-3 gap-1 self-center rounded-md bg-ink p-1 sm:grid-cols-1">
+                      {SIZES.map((z) => {
+                        const sel = on && size === z;
+                        return (
+                          <button
+                            type="button"
+                            role="radio"
+                            aria-checked={sel}
+                            disabled={locked}
+                            key={z}
+                            onClick={() => {
+                              setServiceId(s.id);
+                              setSize(z);
+                            }}
+                            className={`flex items-center justify-between gap-2 rounded px-2 py-1.5 text-left transition-colors ${
+                              sel ? "bg-paper text-ink ring-2 ring-accent" : "text-white hover:bg-white/10"
+                            }`}
+                          >
+                            <span className="text-[10px] font-semibold uppercase leading-tight sm:text-xs">Motor {z}</span>
+                            <span className="font-display text-xl leading-none sm:text-2xl">{priceK(s.prices[z])}</span>
+                          </button>
+                        );
+                      })}
                     </div>
-                  </button>
+                  </div>
                 );
               })}
             </div>
-            {svc?.note && <p className="mt-2 text-xs text-muted">Catatan: {svc.note}</p>}
-            <div className="mt-4">
-              <Field label="Ukuran motor">
-                <Segmented
-                  label="Ukuran motor"
-                  value={size}
-                  onChange={setSize}
-                  options={SIZES.map((s) => ({
-                    value: s,
-                    label: (
-                      <span className="flex flex-col leading-tight">
-                        <span className="capitalize">{s}</span>
-                        <span className="num text-xs opacity-70">{rupiah(svc?.prices[s] ?? 0)}</span>
-                      </span>
-                    ),
-                  }))}
-                />
-              </Field>
-            </div>
-          </Card>
+          </section>
+
+          {activeWashers.length > 0 && (
+            <Card title="Pencuci (untuk komisi)">
+              <div className="flex flex-wrap gap-2">
+                {activeWashers.map((e) => {
+                  const on = workers.includes(e.id);
+                  return (
+                    <button
+                      type="button"
+                      key={e.id}
+                      aria-pressed={on}
+                      onClick={() => setWorkers((w) => (on ? w.filter((x) => x !== e.id) : [...w, e.id]))}
+                      className={`h-10 rounded-full border px-4 text-sm font-medium ${on ? "border-ink bg-ink text-white" : "border-line bg-paper hover:border-ink"}`}
+                    >
+                      {on ? "✓ " : ""}
+                      {e.name}
+                    </button>
+                  );
+                })}
+              </div>
+              <p className="mt-2 text-xs text-muted">Boleh lebih dari satu; komisi dibagi rata. Bisa diubah nanti di menu Pesanan.</p>
+            </Card>
+          )}
 
           <Card title="2. Pelanggan (opsional)">
             <div className="grid gap-3 sm:grid-cols-2">

@@ -23,8 +23,8 @@ export default function LoginPage() {
     <main className="mx-auto flex min-h-dvh max-w-sm flex-col justify-center px-4 py-10">
       <div className="mb-8">
         <div className="mb-3 h-1 w-10 bg-accent" />
-        <h1 className="text-2xl font-extrabold tracking-tight">{db?.settings.businessName ?? "CUCI MOTOR RIZKY"}</h1>
-        <p className="text-sm text-muted">Sistem kasir & loyalti pelanggan</p>
+        <h1 className="font-display text-3xl uppercase tracking-wide">{db?.settings.businessName ?? "CUCI MOTOR RIZKY"}</h1>
+        <p className="text-sm text-muted">{db?.settings.tagline ?? "Sistem kasir & loyalti pelanggan"}</p>
       </div>
       <form onSubmit={submit} className="space-y-4 rounded-lg border border-line bg-paper p-5">
         <Field label="Masuk sebagai">
@@ -52,6 +52,11 @@ export default function LoginPage() {
         <b className="text-ink">Mode demo.</b> PIN Owner <code>1234</code>, Kasir <code>0000</code>. Data contoh tersimpan di browser ini saja (belum
         persisten di server) sampai Supabase dihubungkan.
       </div>
+      <details className="mt-4 rounded-md border border-line bg-paper">
+        <summary className="cursor-pointer px-3 py-2 text-xs font-medium">Lihat daftar harga (spanduk)</summary>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/spanduk.jpg" alt="Spanduk daftar harga Cuci Motor Rizky" className="w-full rounded-b-md" loading="lazy" />
+      </details>
       <div className="mt-4 flex gap-4 text-xs text-muted">
         <Link href="/pitch" className="underline">
           Pitch deck

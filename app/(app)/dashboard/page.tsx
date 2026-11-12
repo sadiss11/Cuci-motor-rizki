@@ -3,7 +3,8 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 import { useApp } from "@/lib/store";
 import { loyaltyOf } from "@/lib/logic";
-import { fmtDateTime, rupiah } from "@/lib/format";
+import { compactRp, fmtDateTime, rupiah } from "@/lib/format";
+import { ColumnChart, HBarChart, VIZ } from "@/components/charts";
 import { groupRows, presetRange, summarize, type Range } from "@/lib/report";
 import { Badge, Card, Empty, PageHeader, Stat, StampBar, statusTone } from "@/components/ui";
 import { RangePicker } from "@/components/RangePicker";
@@ -13,7 +14,6 @@ export default function DashboardPage() {
   const [range, setRange] = useState<Range>(presetRange("hari"));
   const s = useMemo(() => summarize(db, range), [db, range]);
   const trend = useMemo(() => groupRows(db, presetRange("7hari"), "harian").reverse(), [db]);
-  const maxTrend = Math.max(1, ...trend.map((t) => t.omzet));
   const loyal = useMemo(
     () =>
       db.customers
@@ -22,7 +22,6 @@ export default function DashboardPage() {
         .slice(0, 5),
     [db],
   );
-  const maxSvc = Math.max(1, ...s.topServices.map((t) => t.count));
 
   return (
     <>
@@ -39,34 +38,23 @@ export default function DashboardPage() {
       </div>
 
       <div className="grid gap-5 lg:grid-cols-3">
-        <Card title="Omzet 7 hari terakhir" className="lg:col-span-2">
-          <div className="flex h-40 items-end gap-2" role="img" aria-label="Grafik omzet 7 hari">
-            {trend.map((t) => (
-              <div key={t.key} className="flex h-full flex-1 flex-col items-center justify-end gap-1">
-                <span className="num text-[10px] text-muted">{t.omzet ? Math.round(t.omzet / 1000) + "k" : ""}</span>
-                <div className="w-full max-w-10 rounded-t bg-ink" style={{ height: `${(t.omzet / maxTrend) * 100}%`, minHeight: t.omzet ? 2 : 0 }} title={rupiah(t.omzet)} />
-                <span className="text-[10px] text-muted">{t.key.slice(8)}</span>
-              </div>
-            ))}
-          </div>
+        <Card title="Kas 7 hari terakhir" className="lg:col-span-2">
+          <ColumnChart
+            data={trend.map((t) => ({ label: t.key.slice(8) + "/" + t.key.slice(5, 7), full: t.key, values: [t.masuk, t.keluar] }))}
+            series={[
+              { name: "Kas masuk", color: VIZ.s1 },
+              { name: "Kas keluar", color: VIZ.s2 },
+            ]}
+            format={rupiah}
+            axisFormat={compactRp}
+            height={200}
+          />
         </Card>
         <Card title="Top paket">
           {s.topServices.length === 0 ? (
             <Empty>Belum ada transaksi.</Empty>
           ) : (
-            <ul className="space-y-3 text-sm">
-              {s.topServices.map((t) => (
-                <li key={t.name}>
-                  <div className="flex justify-between">
-                    <span>{t.name}</span>
-                    <span className="num text-muted">{t.count}x</span>
-                  </div>
-                  <div className="mt-1 h-1.5 rounded bg-soft">
-                    <div className="h-1.5 rounded bg-accent" style={{ width: `${(t.count / maxSvc) * 100}%` }} />
-                  </div>
-                </li>
-              ))}
-            </ul>
+            <HBarChart rows={s.topServices.map((t) => ({ label: t.name, value: t.count }))} format={(n) => `${n}x`} />
           )}
         </Card>
 

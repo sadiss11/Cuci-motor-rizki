@@ -65,7 +65,26 @@ Jalankan di HP dan desktop. Tandai `[x]` jika lolos. Mulai dari **Pengaturan →
 - [ ] Template promo terisi `{nama}` dan `{usaha}`; dapat diedit sebelum kirim
 - [ ] Hanya satu pelanggan per pengiriman (tidak ada blast massal)
 
-## 8. Responsif & umum
+## 8. Karyawan, gaji & bonus
+- [ ] Kasir: pilih pencuci (boleh 2); tersimpan di pesanan dan bisa diubah di menu Pesanan
+- [ ] Komisi standar: Kinclong Rp5.000/motor; Poles 20% harga paket; dikerjakan 2 orang → dibagi rata
+- [ ] Karyawan komisi "khusus" memakai angka sendiri; "tanpa" → komisi 0
+- [ ] Bonus target harian 8 motor = Rp15.000, 12 motor = Rp30.000 → 13 motor dapat Rp30.000 (bukan Rp45.000)
+- [ ] Gaji harian = tarif × hari masuk (bisa diubah); uang makan × hari masuk
+- [ ] Tambah potongan "Kasbon" mengurangi total; total negatif ditolak
+- [ ] Bayar → muncul kas keluar kategori gaji; bayar ulang periode yang sama ditolak
+- [ ] Ubah pencuci pada pesanan di periode yang sudah dibayar → ditolak
+- [ ] Batalkan slip → kas gaji ikut dibatalkan, periode bisa dibayar ulang
+- [ ] Cetak slip hanya mencetak slip; kirim slip via WhatsApp membuka wa.me karyawan
+- [ ] Kasir tidak bisa membuka menu Karyawan
+
+## 9. Grafik laporan
+- [ ] Grafik mengikuti rentang tanggal dan pilihan Harian/Mingguan/Bulanan
+- [ ] Arahkan/ketuk batang → tooltip berisi periode dan nilai
+- [ ] Tombol "Tabel" di setiap grafik menampilkan angka yang sama
+- [ ] Selisih negatif tampil merah di bawah garis nol
+
+## 10. Responsif & umum
 - [ ] Lebar 360px: tidak ada scroll horizontal halaman, navigasi bawah tampil
 - [ ] Format rupiah `Rp17.000` konsisten
 - [ ] Banner "mode demo" tampil di semua halaman aplikasi

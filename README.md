@@ -23,7 +23,8 @@ Login demo: **Owner** PIN `1234` · **Kasir** PIN `0000`. Reset data contoh: Pen
 | `/pesanan` | Owner, Kasir | Status baru → diproses → selesai / batal, tandai lunas, invoice & WhatsApp |
 | `/pelanggan` | Owner, Kasir | Stempel 0/10, voucher, opt-in/opt-out promo, kirim promo personal |
 | `/kas` | Owner, Kasir | Catat pengeluaran/pemasukan lain, rekap harian; pembatalan entri hanya owner |
-| `/laporan` | Owner | Ringkasan, rekap harian/mingguan/bulanan, ekspor CSV, audit trail |
+| `/laporan` | Owner | Ringkasan, 8 grafik (omzet, kas masuk vs keluar, selisih, jam ramai, paket, metode bayar, pengeluaran, kinerja karyawan) dengan tampilan tabel, rekap, ekspor CSV, audit trail |
+| `/karyawan` | Owner | Data karyawan & gaji per orang (harian/mingguan/bulanan + uang makan), komisi per motor (standar/khusus/tanpa), bonus target, penggajian, slip gaji (cetak / WhatsApp) |
 | `/pengaturan` | Owner | Nama usaha, WA usaha, paket & harga, kebijakan voucher, template promo, PIN |
 | `/i/[token]` | Publik | Invoice read-only (data minimal, tanpa nomor WA) |
 | `/pitch`, `/prospektus` | Publik | Pitch deck 8 slide & prospektus, siap cetak |
@@ -35,6 +36,7 @@ Login demo: **Owner** PIN `1234` · **Kasir** PIN `0000`. Reset data contoh: Pen
 - **Invoice**: token acak 24 karakter. Di mode demo, data invoice minimal dikodekan di fragmen URL (`#…`, tidak dikirim ke server) agar bisa dibuka di HP pelanggan. Nomor WA tidak pernah masuk URL.
 - **WhatsApp**: hanya membuka `wa.me` dengan pesan siap kirim; staf menekan kirim sendiri. Tidak ada auto-send, blast, atau bot.
 - **Pembayaran**: transfer/QRIS hanya konfirmasi manual. Tidak ada integrasi payment gateway.
+- **Gaji & bonus**: gaji pokok sesuai jenis (harian × hari masuk, mingguan/bulanan prorata periode) + uang makan × hari masuk + komisi per motor selesai (dari harga paket, dibagi rata antar pencuci) + bonus target (tingkat tertinggi yang tercapai per hari/minggu/bulan) ± bonus lain/potongan. Pembayaran otomatis jadi kas keluar "gaji"; periode tidak bisa dibayar dua kali; pembatalan slip ikut membatalkan kasnya.
 - **Laporan** memakai istilah *selisih operasional* (kas masuk − kas keluar tercatat), bukan laba bersih.
 
 ## Struktur

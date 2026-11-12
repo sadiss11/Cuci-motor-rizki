@@ -13,6 +13,7 @@ export const NAV: { href: string; label: string; roles: Role[] }[] = [
   { href: "/pelanggan", label: "Pelanggan", roles: ["owner", "kasir"] },
   { href: "/kas", label: "Kas", roles: ["owner", "kasir"] },
   { href: "/laporan", label: "Laporan", roles: ["owner"] },
+  { href: "/karyawan", label: "Karyawan", roles: ["owner"] },
   { href: "/pengaturan", label: "Pengaturan", roles: ["owner"] },
 ];
 
@@ -20,7 +21,8 @@ export function Shell({ children }: { children: React.ReactNode }) {
   const { db, role, logout } = useStore();
   const path = usePathname();
   const router = useRouter();
-  const item = NAV.find((n) => path.startsWith(n.href));
+  const isOn = (href: string) => path === href || path.startsWith(href + "/");
+  const item = NAV.find((n) => isOn(n.href));
   const allowed = !!role && (!item || item.roles.includes(role));
 
   useEffect(() => {
@@ -46,7 +48,7 @@ export function Shell({ children }: { children: React.ReactNode }) {
               <Link
                 key={n.href}
                 href={n.href}
-                className={cx("rounded-md px-3 py-1.5 text-sm", path.startsWith(n.href) ? "bg-ink text-white" : "text-muted hover:text-ink")}
+                className={cx("rounded-md px-3 py-1.5 text-sm", isOn(n.href) ? "bg-ink text-white" : "text-muted hover:text-ink")}
               >
                 {n.label}
               </Link>
@@ -70,18 +72,14 @@ export function Shell({ children }: { children: React.ReactNode }) {
         </div>
       </header>
       <main className="mx-auto max-w-6xl px-4 pt-5 pb-28 md:pb-10">{children}</main>
-      <nav
-        className="no-print fixed inset-x-0 bottom-0 z-20 grid border-t border-line bg-paper md:hidden"
-        style={{ gridTemplateColumns: `repeat(${links.length}, minmax(0,1fr))` }}
-        aria-label="Navigasi bawah"
-      >
+      <nav className="no-print fixed inset-x-0 bottom-0 z-20 flex overflow-x-auto border-t border-line bg-paper md:hidden" aria-label="Navigasi bawah">
         {links.map((n) => (
           <Link
             key={n.href}
             href={n.href}
-            className={cx("flex h-14 items-center justify-center text-[11px] font-medium", path.startsWith(n.href) ? "text-ink" : "text-muted")}
+            className={cx("flex h-14 min-w-[72px] flex-1 items-center justify-center px-1 text-[11px] font-medium", isOn(n.href) ? "text-ink" : "text-muted")}
           >
-            <span className={cx("border-t-2 pt-1", path.startsWith(n.href) ? "border-accent" : "border-transparent")}>{n.label}</span>
+            <span className={cx("border-t-2 pt-1", isOn(n.href) ? "border-accent" : "border-transparent")}>{n.label}</span>
           </Link>
         ))}
       </nav>

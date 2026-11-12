@@ -83,3 +83,12 @@ export function downloadCsv(name: string, rows: (string | number)[][]) {
 export function waLink(phone: string, text: string) {
   return `https://wa.me/${phone}?text=${encodeURIComponent(text)}`;
 }
+
+/** Ringkas untuk sumbu grafik: 150rb, 1,2jt */
+export function compactRp(n: number) {
+  const a = Math.abs(n);
+  const sign = n < 0 ? "−" : "";
+  if (a >= 1e6) return sign + (a / 1e6).toLocaleString("id-ID", { maximumFractionDigits: 1 }) + "jt";
+  if (a >= 1e3) return sign + Math.round(a / 1e3).toLocaleString("id-ID") + "rb";
+  return sign + String(Math.round(a));
+}
