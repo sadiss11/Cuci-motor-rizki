@@ -107,8 +107,8 @@ export default function KasirPage() {
 
       <form onSubmit={submit} className="grid gap-5 lg:grid-cols-[1fr_340px]">
         <div className="space-y-5">
-          <section className="overflow-hidden rounded-lg border-2 border-ink bg-paper">
-            <div className="relative flex items-center justify-between gap-3 bg-ink px-4 py-3 text-white">
+          <section className="overflow-hidden rounded-xl border border-line bg-paper">
+            <div className="relative flex items-center justify-between gap-3 bg-ink px-5 py-3 text-white">
               <div>
                 <div className="font-display text-xl uppercase leading-none tracking-wide sm:text-2xl">{db.settings.businessName}</div>
                 <div className="mt-1 text-xs italic text-white/70">— {db.settings.tagline} —</div>
@@ -119,7 +119,7 @@ export default function KasirPage() {
                 style={{ backgroundImage: "repeating-conic-gradient(#fff 0 25%, #111 0 50%)", backgroundSize: "10px 10px" }}
               />
             </div>
-            <div className="divide-y-2 divide-ink" role="radiogroup" aria-label="Paket dan ukuran motor">
+            <div className="divide-y divide-line" role="radiogroup" aria-label="Paket dan ukuran motor">
               {services.map((s) => {
                 const on = s.id === serviceId;
                 const locked = !!voucher && s.id !== voucher.serviceId;
@@ -185,7 +185,7 @@ export default function KasirPage() {
                       key={e.id}
                       aria-pressed={on}
                       onClick={() => setWorkers((w) => (on ? w.filter((x) => x !== e.id) : [...w, e.id]))}
-                      className={`h-10 rounded-full border px-4 text-sm font-medium ${on ? "border-ink bg-ink text-white" : "border-line bg-paper hover:border-ink"}`}
+                      className={`h-10 rounded-full border px-4 text-sm font-medium ${on ? "border-accent-200 bg-accent-50 font-semibold text-accent-hover" : "border-stone-200 bg-white text-stone-700 hover:bg-stone-50"}`}
                     >
                       {on ? "✓ " : ""}
                       {e.name}

@@ -16,7 +16,7 @@ export function RangePicker({ value, onChange }: { value: Range; onChange: (r: R
         const r = presetRange(p.k);
         const on = r.from === value.from && r.to === value.to;
         return (
-          <button key={p.k} onClick={() => onChange(r)} className={`h-9 rounded-full border px-3 text-sm ${on ? "border-ink bg-ink text-white" : "border-line bg-paper"}`}>
+          <button key={p.k} onClick={() => onChange(r)} className={`h-8 rounded-full border px-3 text-[12.5px] ${on ? "border-accent-200 bg-accent-50 font-semibold text-accent-hover" : "border-stone-200 bg-white text-stone-700 hover:bg-stone-50"}`}>
             {p.l}
           </button>
         );

@@ -2,7 +2,8 @@
 import { useMemo, useState } from "react";
 import { useApp } from "@/lib/store";
 import { audit } from "@/lib/logic";
-import { computePayroll, overlappingPayroll, savePayroll, slipText, voidPayroll } from "@/lib/payroll";
+import { computePayroll, deleteEmployee, employeeHistory, overlappingPayroll, savePayroll, slipText, voidPayroll } from "@/lib/payroll";
+import { Trash2 } from "lucide-react";
 import { fmtDateTime, normalizePhone, parseAmount, rupiah, uid, waLink } from "@/lib/format";
 import type { Range } from "@/lib/report";
 import type { BonusTier, CommissionRule, Employee, PayPeriod, PayrollRecord } from "@/lib/types";
@@ -24,7 +25,7 @@ export default function KaryawanPage() {
             ["bonus", "Skema komisi & bonus"],
           ] as const
         ).map(([k, l]) => (
-          <button key={k} role="tab" aria-selected={tab === k} onClick={() => setTab(k)} className={`h-9 rounded-full border px-4 text-sm ${tab === k ? "border-ink bg-ink text-white" : "border-line bg-paper"}`}>
+          <button key={k} role="tab" aria-selected={tab === k} onClick={() => setTab(k)} className={`h-8 rounded-full border px-3.5 text-[12.5px] ${tab === k ? "border-accent-200 bg-accent-50 font-semibold text-accent-hover" : "border-stone-200 bg-white text-stone-700 hover:bg-stone-50"}`}>
             {l}
           </button>
         ))}
@@ -78,13 +79,29 @@ function EmployeesTab() {
     setEdit(null);
   };
 
+  const remove = (emp: Employee) => {
+    const h = employeeHistory(db, emp.id);
+    const extra = h.orders || h.payrolls ? `
+
+${emp.name} punya riwayat ${h.orders} pesanan dan ${h.payrolls} slip gaji. Riwayat tetap tersimpan, tapi karyawan tidak bisa dipilih lagi.` : "";
+    if (!confirm(`Hapus karyawan ${emp.name}?${extra}
+
+Tips: jika hanya berhenti sementara, cukup hilangkan centang "Aktif".`)) return;
+    try {
+      commit((d) => deleteEmployee(d, emp.id, role));
+      setEdit(null);
+    } catch (e) {
+      setErr((e as Error).message);
+    }
+  };
+
   return (
     <div className="grid gap-5 lg:grid-cols-[1fr_420px]">
       <Card title={`${db.employees.length} karyawan`} action={<Button size="sm" onClick={() => setEdit(blankEmployee())}>+ Tambah</Button>}>
-        <ul className="-m-4 divide-y divide-line">
+        <ul className="-m-5 divide-y divide-line">
           {db.employees.map((e) => (
             <li key={e.id}>
-              <button onClick={() => setEdit(structuredClone(e))} className={`flex w-full flex-wrap items-center gap-x-4 gap-y-1 px-4 py-3 text-left hover:bg-soft ${edit?.id === e.id ? "bg-soft" : ""}`}>
+              <button onClick={() => setEdit(structuredClone(e))} className={`flex w-full flex-wrap items-center gap-x-4 gap-y-1 px-5 py-3 text-left hover:bg-soft ${edit?.id === e.id ? "bg-soft" : ""}`}>
                 <span className="min-w-0 flex-1">
                   <span className="font-medium">{e.name}</span> <Badge>{e.position}</Badge> {!e.active && <Badge tone="bad">nonaktif</Badge>}
                   <span className="num block text-xs text-muted">
@@ -96,6 +113,7 @@ function EmployeesTab() {
               </button>
             </li>
           ))}
+          {db.employees.length === 0 && <li className="px-5 py-8 text-center text-[13px] text-stone-500">Belum ada karyawan.</li>}
         </ul>
       </Card>
       <div className="lg:sticky lg:top-24 lg:self-start">
@@ -166,6 +184,11 @@ function EmployeesTab() {
                   Batal
                 </Button>
               </div>
+              {db.employees.some((x) => x.id === edit.id) && (
+                <Button variant="danger" className="w-full" onClick={() => remove(edit)}>
+                  <Trash2 className="size-4" /> Hapus karyawan
+                </Button>
+              )}
             </div>
           </Card>
         ) : (
@@ -339,10 +362,10 @@ function PayrollTab() {
   return (
     <>
       <div className="mb-4 flex flex-wrap items-center gap-2">
-        <button onClick={() => setRange(weekRange(-1))} className="h-9 rounded-full border border-line bg-paper px-3 text-sm">
+        <button onClick={() => setRange(weekRange(-1))} className="h-8 rounded-full border border-stone-200 bg-white px-3 text-[12.5px] text-stone-700 hover:bg-stone-50">
           Minggu lalu
         </button>
-        <button onClick={() => setRange(weekRange(0))} className="h-9 rounded-full border border-line bg-paper px-3 text-sm">
+        <button onClick={() => setRange(weekRange(0))} className="h-8 rounded-full border border-stone-200 bg-white px-3 text-[12.5px] text-stone-700 hover:bg-stone-50">
           Minggu ini
         </button>
         <RangePicker value={range} onChange={setRange} />
@@ -350,23 +373,23 @@ function PayrollTab() {
       <div className="grid gap-5 lg:grid-cols-[1fr_420px]">
         <div className="min-w-0 space-y-5">
           <Card title={`Estimasi gaji ${range.from} s.d. ${range.to}`} action={<span className="num text-sm font-semibold">{rupiah(total)}</span>}>
-            <div className="-m-4 overflow-x-auto">
+            <div className="-m-5 overflow-x-auto">
               <table className="num w-full min-w-[620px] text-sm">
                 <thead className="border-b border-line text-left text-xs text-muted">
                   <tr>
-                    <th className="px-4 py-2 font-medium">Karyawan</th>
+                    <th className="px-5 py-2 font-medium">Karyawan</th>
                     <th className="py-2 text-right font-medium">Hari</th>
                     <th className="py-2 text-right font-medium">Motor</th>
                     <th className="py-2 text-right font-medium">Pokok + makan</th>
                     <th className="py-2 text-right font-medium">Komisi</th>
                     <th className="py-2 text-right font-medium">Bonus</th>
-                    <th className="px-4 py-2 text-right font-medium">Total</th>
+                    <th className="px-5 py-2 text-right font-medium">Total</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-line">
                   {calcs.map(({ e, c, paid }) => (
                     <tr key={e.id} onClick={() => setSel(e.id)} className={`cursor-pointer hover:bg-soft ${sel === e.id ? "bg-soft" : ""}`}>
-                      <td className="px-4 py-2.5">
+                      <td className="px-5 py-2.5">
                         <span className="font-medium">{e.name}</span> {paid && <Badge tone="ok">dibayar</Badge>}
                         <span className="block text-xs text-muted">{e.position}</span>
                       </td>
@@ -375,7 +398,7 @@ function PayrollTab() {
                       <td className="text-right">{rupiah(c.base + c.allowance)}</td>
                       <td className="text-right">{rupiah(c.commission)}</td>
                       <td className="text-right">{rupiah(c.targetBonus)}</td>
-                      <td className="px-4 text-right font-semibold">{rupiah(c.gross)}</td>
+                      <td className="px-5 text-right font-semibold">{rupiah(c.gross)}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -519,9 +542,9 @@ function PayrollHistory() {
       {db.payrolls.length === 0 ? (
         <Empty>Belum ada gaji dibayar.</Empty>
       ) : (
-        <ul className="-m-4 divide-y divide-line">
+        <ul className="-m-5 divide-y divide-line">
           {db.payrolls.map((p) => (
-            <li key={p.id} className={`px-4 py-3 text-sm ${p.voided ? "opacity-50" : ""}`}>
+            <li key={p.id} className={`px-5 py-3 text-sm ${p.voided ? "opacity-50" : ""}`}>
               <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
                 <span className="min-w-0 flex-1">
                   <b>{p.employeeName}</b> · {p.from} s.d. {p.to}

@@ -94,22 +94,22 @@ export default function PengaturanPage() {
           </div>
         </Card>
         <Card title="Paket & harga" className="lg:col-span-2">
-          <div className="-m-4 overflow-x-auto">
+          <div className="-m-5 overflow-x-auto">
             <table className="w-full min-w-[640px] text-sm">
               <thead className="border-b border-line text-left text-xs text-muted">
                 <tr>
-                  <th className="px-4 py-2 font-medium">Paket</th>
+                  <th className="px-5 py-2 font-medium">Paket</th>
                   <th className="py-2 font-medium">Estimasi</th>
                   {SIZES.map((z) => (
                     <th key={z} className="py-2 font-medium capitalize">{z}</th>
                   ))}
-                  <th className="px-4 py-2 font-medium">Aktif</th>
+                  <th className="px-5 py-2 font-medium">Aktif</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-line">
                 {services.map((x) => (
                   <tr key={x.id}>
-                    <td className="px-4 py-2">
+                    <td className="px-5 py-2">
                       <Input className="h-9" value={x.name} onChange={(e) => setServices((l) => l.map((y) => (y.id === x.id ? { ...y, name: e.target.value } : y)))} aria-label="Nama paket" />
                     </td>
                     <td className="py-2 pr-2">
@@ -120,7 +120,7 @@ export default function PengaturanPage() {
                         <Input className="num h-9" inputMode="numeric" value={x.prices[z]} onChange={(e) => setPrice(x.id, z, e.target.value)} aria-label={`Harga ${z}`} title={rupiah(x.prices[z])} />
                       </td>
                     ))}
-                    <td className="px-4 py-2">
+                    <td className="px-5 py-2">
                       <input type="checkbox" className="h-4 w-4 accent-[#c8102e]" checked={x.active} onChange={(e) => setServices((l) => l.map((y) => (y.id === x.id ? { ...y, active: e.target.checked } : y)))} aria-label="Aktif" />
                     </td>
                   </tr>

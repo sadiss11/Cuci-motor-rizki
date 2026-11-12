@@ -7,7 +7,7 @@ export function PrintBar({ title }: { title: string }) {
       <div className="mx-auto flex h-12 max-w-4xl items-center gap-4 px-4 text-sm">
         <Link href="/login" className="text-muted hover:text-ink">← Aplikasi</Link>
         <span className="font-semibold">{title}</span>
-        <button onClick={() => window.print()} className="ml-auto h-8 rounded-md bg-ink px-3 text-white">
+        <button onClick={() => window.print()} className="ml-auto h-8 rounded-lg bg-accent px-3 font-semibold text-white hover:bg-accent-hover">
           Cetak / PDF
         </button>
       </div>

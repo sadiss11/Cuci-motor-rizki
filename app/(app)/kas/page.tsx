@@ -135,9 +135,9 @@ export default function KasPage() {
           {entries.length === 0 ? (
             <Empty>Tidak ada entri pada rentang ini.</Empty>
           ) : (
-            <ul className="-m-4 divide-y divide-line">
+            <ul className="-m-5 divide-y divide-line">
               {entries.slice(0, 300).map((c) => (
-                <li key={c.id} className={`flex flex-wrap items-center gap-x-3 gap-y-1 px-4 py-2.5 text-sm ${c.voided ? "opacity-50" : ""}`}>
+                <li key={c.id} className={`flex flex-wrap items-center gap-x-3 gap-y-1 px-5 py-2.5 text-sm ${c.voided ? "opacity-50" : ""}`}>
                   <span className="w-full text-xs text-muted sm:w-36">{fmtDateTime(c.date)}</span>
                   <span className="min-w-0 flex-1">
                     <Badge tone={c.type === "masuk" ? "ok" : "bad"}>{c.category}</Badge> <span className={c.voided ? "line-through" : ""}>{c.note || "-"}</span>

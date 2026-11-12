@@ -74,27 +74,27 @@ export default function LaporanPage() {
           {rows.length === 0 ? (
             <Empty>Tidak ada data.</Empty>
           ) : (
-            <div className="-m-4 overflow-x-auto">
+            <div className="-m-5 overflow-x-auto">
               <table className="num w-full min-w-[520px] text-sm">
                 <thead className="border-b border-line text-left text-xs text-muted">
                   <tr>
-                    <th className="px-4 py-2 font-medium">Periode</th>
+                    <th className="px-5 py-2 font-medium">Periode</th>
                     <th className="py-2 text-right font-medium">Transaksi</th>
                     <th className="py-2 text-right font-medium">Omzet</th>
                     <th className="py-2 text-right font-medium">Masuk</th>
                     <th className="py-2 text-right font-medium">Keluar</th>
-                    <th className="px-4 py-2 text-right font-medium">Selisih</th>
+                    <th className="px-5 py-2 text-right font-medium">Selisih</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-line">
                   {rows.map((r) => (
                     <tr key={r.key}>
-                      <td className="px-4 py-2">{r.key}</td>
+                      <td className="px-5 py-2">{r.key}</td>
                       <td className="py-2 text-right">{r.transaksi}</td>
                       <td className="py-2 text-right">{rupiah(r.omzet)}</td>
                       <td className="py-2 text-right">{rupiah(r.masuk)}</td>
                       <td className="py-2 text-right">{rupiah(r.keluar)}</td>
-                      <td className={`px-4 py-2 text-right font-medium ${r.masuk - r.keluar < 0 ? "text-accent" : ""}`}>{rupiah(r.masuk - r.keluar)}</td>
+                      <td className={`px-5 py-2 text-right font-medium ${r.masuk - r.keluar < 0 ? "text-accent" : ""}`}>{rupiah(r.masuk - r.keluar)}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -131,9 +131,9 @@ export default function LaporanPage() {
       </div>
 
       <Card title="Audit trail (20 terakhir)" className="mt-5">
-        <ul className="-m-4 divide-y divide-line text-xs">
+        <ul className="-m-5 divide-y divide-line text-xs">
           {db.audit.slice(0, 20).map((a) => (
-            <li key={a.id} className="flex flex-wrap gap-x-3 px-4 py-2">
+            <li key={a.id} className="flex flex-wrap gap-x-3 px-5 py-2">
               <span className="w-36 text-muted">{fmtDateTime(a.at)}</span>
               <span className="w-14 uppercase">{a.by}</span>
               <span className="font-medium">{a.action}</span>

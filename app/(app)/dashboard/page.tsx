@@ -59,27 +59,27 @@ export default function DashboardPage() {
         </Card>
 
         <Card title="Transaksi terakhir" className="lg:col-span-2" action={<Link href="/pesanan" className="text-xs underline">Semua</Link>}>
-          <div className="-m-4 overflow-x-auto">
+          <div className="-m-5 overflow-x-auto">
             <table className="num w-full min-w-[520px] text-sm">
               <thead className="border-b border-line text-left text-xs text-muted">
                 <tr>
-                  <th className="px-4 py-2 font-medium">Waktu</th>
+                  <th className="px-5 py-2 font-medium">Waktu</th>
                   <th className="py-2 font-medium">Paket</th>
                   <th className="py-2 font-medium">Pelanggan</th>
                   <th className="py-2 text-right font-medium">Total</th>
-                  <th className="px-4 py-2 text-right font-medium">Status</th>
+                  <th className="px-5 py-2 text-right font-medium">Status</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-line">
                 {db.orders.slice(0, 8).map((o) => (
                   <tr key={o.id}>
-                    <td className="px-4 py-2 text-xs text-muted">{fmtDateTime(o.createdAt)}</td>
+                    <td className="px-5 py-2 text-xs text-muted">{fmtDateTime(o.createdAt)}</td>
                     <td className="py-2">
                       {o.serviceName} <span className="text-muted">· {o.size}</span>
                     </td>
                     <td className="py-2">{o.customerName}</td>
                     <td className="py-2 text-right">{o.voucherId ? "voucher" : rupiah(o.total)}</td>
-                    <td className="space-x-1 px-4 py-2 text-right">
+                    <td className="space-x-1 px-5 py-2 text-right">
                       <Badge tone={statusTone(o.payStatus)}>{o.payStatus}</Badge>
                       <Badge tone={statusTone(o.status)}>{o.status}</Badge>
                     </td>

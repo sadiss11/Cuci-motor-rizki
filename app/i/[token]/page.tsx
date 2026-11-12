@@ -62,7 +62,7 @@ export default function InvoicePage() {
         <p className="mt-6 text-center text-xs text-muted">Terima kasih! Kumpulkan stempel untuk cuci gratis.</p>
       </article>
       <div className="no-print mt-4 text-center">
-        <button onClick={() => window.print()} className="h-10 rounded-md bg-ink px-4 text-sm font-medium text-white">
+        <button onClick={() => window.print()} className="h-10 rounded-lg bg-accent px-4 text-sm font-semibold text-white hover:bg-accent-hover">
           Cetak / simpan PDF
         </button>
       </div>

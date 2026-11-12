@@ -42,7 +42,7 @@ export default function PesananPage() {
           <button
             key={f.v}
             onClick={() => setFilter(f.v)}
-            className={`h-9 rounded-full border px-3 text-sm ${filter === f.v ? "border-ink bg-ink text-white" : "border-line bg-paper"}`}
+            className={`h-8 rounded-full border px-3 text-[12.5px] ${filter === f.v ? "border-accent-200 bg-accent-50 font-semibold text-accent-hover" : "border-stone-200 bg-white text-stone-700 hover:bg-stone-50"}`}
           >
             {f.l}
           </button>
@@ -57,7 +57,7 @@ export default function PesananPage() {
         {list.length === 0 ? (
           <Empty>Tidak ada pesanan.</Empty>
         ) : (
-          <ul className="-m-4 divide-y divide-line">
+          <ul className="-m-5 divide-y divide-line">
             {list.slice(0, 200).map((o) => (
               <OrderRow key={o.id} o={o} open={open === o.id} onToggle={() => setOpen(open === o.id ? null : o.id)} />
             ))}
@@ -85,7 +85,7 @@ function OrderRow({ o, open, onToggle }: { o: Order; open: boolean; onToggle: ()
 
   return (
     <li>
-      <button onClick={onToggle} aria-expanded={open} className="flex w-full flex-wrap items-center gap-x-3 gap-y-1 px-4 py-3 text-left hover:bg-soft">
+      <button onClick={onToggle} aria-expanded={open} className="flex w-full flex-wrap items-center gap-x-3 gap-y-1 px-5 py-3 text-left hover:bg-soft">
         <span className="num w-full text-xs text-muted sm:w-40">{o.invoiceNo}</span>
         <span className="min-w-0 flex-1">
           <span className="font-medium">{o.serviceName}</span>
@@ -96,7 +96,7 @@ function OrderRow({ o, open, onToggle }: { o: Order; open: boolean; onToggle: ()
         <Badge tone={statusTone(o.status)}>{o.status}</Badge>
       </button>
       {open && (
-        <div className="space-y-4 border-t border-line bg-soft px-4 py-4 text-sm">
+        <div className="space-y-4 border-t border-line bg-soft px-5 py-4 text-sm">
           <div className="text-xs text-muted">
             Dibuat {fmtDateTime(o.createdAt)} oleh {o.createdBy}
             {o.paidAt && ` · Lunas ${fmtDateTime(o.paidAt)}`}
@@ -152,7 +152,7 @@ function OrderRow({ o, open, onToggle }: { o: Order; open: boolean; onToggle: ()
                     onClick={() =>
                       run(() => commit((d) => setWorkers(d, o.id, on ? (o.workerIds ?? []).filter((x) => x !== e.id) : [...(o.workerIds ?? []), e.id], role)))
                     }
-                    className={`h-8 rounded-full border px-3 text-xs font-medium disabled:opacity-50 ${on ? "border-ink bg-ink text-white" : "border-line bg-paper"}`}
+                    className={`h-8 rounded-full border px-3 text-xs font-medium disabled:opacity-50 ${on ? "border-accent-200 bg-accent-50 font-semibold text-accent-hover" : "border-stone-200 bg-white text-stone-700 hover:bg-stone-50"}`}
                   >
                     {on ? "✓ " : ""}
                     {e.name}

@@ -33,7 +33,7 @@ export default function PelangganPage() {
         <div className="space-y-4">
           <div className="flex flex-wrap items-center gap-2">
             {(["semua", "promo"] as const).map((t) => (
-              <button key={t} onClick={() => setTab(t)} className={`h-9 rounded-full border px-3 text-sm ${tab === t ? "border-ink bg-ink text-white" : "border-line bg-paper"}`}>
+              <button key={t} onClick={() => setTab(t)} className={`h-8 rounded-full border px-3 text-[12.5px] ${tab === t ? "border-accent-200 bg-accent-50 font-semibold text-accent-hover" : "border-stone-200 bg-white text-stone-700 hover:bg-stone-50"}`}>
                 {t === "semua" ? "Semua pelanggan" : "Izin promosi"}
               </button>
             ))}
@@ -43,10 +43,10 @@ export default function PelangganPage() {
             {list.length === 0 ? (
               <Empty>Belum ada pelanggan.</Empty>
             ) : (
-              <ul className="-m-4 divide-y divide-line">
+              <ul className="-m-5 divide-y divide-line">
                 {list.map(({ c, l, consent }) => (
                   <li key={c.id}>
-                    <button onClick={() => setSel(c.id)} className={`flex w-full flex-wrap items-center gap-x-4 gap-y-1 px-4 py-3 text-left hover:bg-soft ${sel === c.id ? "bg-soft" : ""}`}>
+                    <button onClick={() => setSel(c.id)} className={`flex w-full flex-wrap items-center gap-x-4 gap-y-1 px-5 py-3 text-left hover:bg-soft ${sel === c.id ? "bg-soft" : ""}`}>
                       <span className="min-w-0 flex-1">
                         <span className="font-medium">{c.name}</span>
                         <span className="num block text-xs text-muted">{maskPhone(c.phone)}</span>

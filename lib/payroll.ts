@@ -179,3 +179,19 @@ export function slipText(db: DB, p: PayrollRecord) {
     .filter((l, i, a) => l !== "" || a[i - 1] !== "")
     .join("\n");
 }
+
+/** Hapus karyawan. Riwayat pesanan & slip gaji tetap tersimpan (slip menyimpan nama). */
+export function deleteEmployee(db: DB, id: string, by: Role) {
+  if (by !== "owner") throw new Error("Hanya owner yang dapat menghapus karyawan");
+  const e = db.employees.find((x) => x.id === id);
+  if (!e) throw new Error("Karyawan tidak ditemukan");
+  db.employees = db.employees.filter((x) => x.id !== id);
+  audit(db, by, "karyawan.hapus", e.name);
+}
+
+export function employeeHistory(db: DB, id: string) {
+  return {
+    orders: db.orders.filter((o) => o.workerIds?.includes(id)).length,
+    payrolls: db.payrolls.filter((p) => p.employeeId === id && !p.voided).length,
+  };
+}
