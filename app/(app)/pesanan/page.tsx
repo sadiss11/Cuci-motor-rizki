@@ -48,7 +48,7 @@ export default function PesananPage() {
           </button>
         ))}
         <label className="ml-1 flex items-center gap-1.5 text-sm">
-          <input type="checkbox" className="h-4 w-4 accent-[#c8102e]" checked={todayOnly} onChange={(e) => setTodayOnly(e.target.checked)} />
+          <input type="checkbox" className="h-4 w-4 accent-black" checked={todayOnly} onChange={(e) => setTodayOnly(e.target.checked)} />
           Hari ini
         </label>
         <Input className="h-9 sm:ml-auto sm:w-64" placeholder="Cari invoice / nama / plat" value={q} onChange={(e) => setQ(e.target.value)} />

@@ -35,8 +35,9 @@ export default function InvoicePage() {
     <main className="mx-auto max-w-md px-4 py-8">
       <article className="rounded-lg border border-line bg-paper p-6 print:border-0">
         <header className="mb-5 border-b border-line pb-4">
-          <div className="mb-2 h-1 w-10 bg-accent" />
-          <h1 className="text-xl font-extrabold tracking-tight">{data.n}</h1>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/header.png" alt="" width={757} height={197} className="mb-2 h-auto w-full" />
+          <h1 className="text-lg font-bold tracking-tight">{data.n}</h1>
           <p className="text-xs text-muted">{data.a}</p>
         </header>
         <dl className="space-y-1 text-sm">
@@ -55,7 +56,7 @@ export default function InvoicePage() {
         </div>
         <div className="flex items-center justify-between text-sm">
           <span className="text-muted">Pembayaran ({data.m.toUpperCase()})</span>
-          <span className={`rounded px-2 py-0.5 text-xs font-semibold uppercase ${paid ? "bg-[#e7f3ec] text-ok" : "bg-[#fde8eb] text-accent"}`}>
+          <span className={`rounded px-2 py-0.5 text-xs font-semibold uppercase ${paid ? "bg-stone-900 text-white" : "border border-stone-400 bg-white text-stone-700"}`}>
             {data.st === "batal" ? "batal" : data.ps}
           </span>
         </div>

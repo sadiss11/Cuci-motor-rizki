@@ -1,12 +1,12 @@
 "use client";
-// Grafik ringan berbasis SVG/HTML (tanpa library). Palet tervalidasi (CVD aman):
-// seri-1 biru, seri-2 oranye; selisih negatif = merah (kutub divergen).
+// Grafik ringan berbasis SVG/HTML (tanpa library). Hitam-putih sesuai permintaan:
+// seri-1 hitam, seri-2 abu-abu (dibedakan terang-gelap + legenda + tooltip + tabel).
 import { useEffect, useRef, useState, type ReactNode } from "react";
 
 export const VIZ = {
-  s1: "#2a78d6",
-  s2: "#eb6834",
-  neg: "#e34948",
+  s1: "#1c1917",
+  s2: "#a8a29e",
+  neg: "#a8a29e",
   grid: "#e1e0d9",
   axis: "#c3c2b7",
   muted: "#898781",

@@ -108,16 +108,10 @@ export default function KasirPage() {
       <form onSubmit={submit} className="grid gap-5 lg:grid-cols-[1fr_340px]">
         <div className="space-y-5">
           <section className="overflow-hidden rounded-xl border border-line bg-paper">
-            <div className="relative flex items-center justify-between gap-3 bg-ink px-5 py-3 text-white">
-              <div>
-                <div className="font-display text-xl uppercase leading-none tracking-wide sm:text-2xl">{db.settings.businessName}</div>
-                <div className="mt-1 text-xs italic text-white/70">— {db.settings.tagline} —</div>
-              </div>
-              <div
-                aria-hidden
-                className="h-10 w-16 shrink-0 opacity-90"
-                style={{ backgroundImage: "repeating-conic-gradient(#fff 0 25%, #111 0 50%)", backgroundSize: "10px 10px" }}
-              />
+            <div className="border-b border-line bg-white px-3 pt-3 pb-2">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/header.png" alt={`${db.settings.businessName} — ${db.settings.tagline}`} width={757} height={197} className="mx-auto h-auto w-full max-w-xl" />
+              <div aria-hidden className="mt-2 h-2 w-full rounded-sm" style={{ backgroundImage: "repeating-conic-gradient(#111 0 25%, #fff 0 50%)", backgroundSize: "8px 8px" }} />
             </div>
             <div className="divide-y divide-line" role="radiogroup" aria-label="Paket dan ukuran motor">
               {services.map((s) => {
@@ -130,7 +124,7 @@ export default function KasirPage() {
                       <span className="min-w-0 flex-1">
                         <span className="flex flex-wrap items-center gap-2">
                           <span className="font-display text-xl uppercase leading-none">{s.name}</span>
-                          {on && <span className="h-2 w-2 rounded-full bg-accent" aria-label="dipilih" />}
+                          {on && <span className="h-2 w-2 rounded-full bg-ink" aria-label="dipilih" />}
                         </span>
                         <span className="mt-1 inline-flex items-center gap-1 rounded border border-ink px-1.5 py-0.5 text-[11px] font-semibold">⏱ {s.duration}</span>
                         <ul className={`mt-2 space-y-1 text-xs ${on ? "" : "hidden sm:block"}`}>
@@ -159,7 +153,7 @@ export default function KasirPage() {
                               setSize(z);
                             }}
                             className={`flex items-center justify-between gap-2 rounded px-2 py-1.5 text-left transition-colors ${
-                              sel ? "bg-paper text-ink ring-2 ring-accent" : "text-white hover:bg-white/10"
+                              sel ? "bg-paper text-ink ring-2 ring-stone-400" : "text-white hover:bg-white/10"
                             }`}
                           >
                             <span className="text-[10px] font-semibold uppercase leading-tight sm:text-xs">Motor {z}</span>
@@ -238,7 +232,7 @@ export default function KasirPage() {
                   <label className="mt-2 flex items-center gap-2">
                     <input
                       type="checkbox"
-                      className="h-4 w-4 accent-[#c8102e]"
+                      className="h-4 w-4 accent-black"
                       checked={!!voucher}
                       onChange={(e) => {
                         const v = loyalty.available[0];
@@ -333,7 +327,7 @@ export default function KasirPage() {
                 </div>
               )}
             </dl>
-            {error && <p className="mt-3 rounded-md bg-[#fde8eb] p-2 text-sm text-accent" role="alert">{error}</p>}
+            {error && <p className="mt-3 rounded-md bg-stone-100 p-2 text-sm text-accent" role="alert">{error}</p>}
             <Button type="submit" className="mt-4 w-full" disabled={!!phoneErr || (method === "tunai" && payStatus === "lunas" && !voucher && recv < total)}>
               Simpan & Buat Invoice
             </Button>

@@ -127,7 +127,7 @@ export default function KasPage() {
           title={`Entri kas (${entries.length})`}
           action={
             <label className="flex items-center gap-1.5 text-xs">
-              <input type="checkbox" className="accent-[#c8102e]" checked={showVoided} onChange={(e) => setShowVoided(e.target.checked)} />
+              <input type="checkbox" className="accent-black" checked={showVoided} onChange={(e) => setShowVoided(e.target.checked)} />
               tampilkan yang dibatalkan
             </label>
           }

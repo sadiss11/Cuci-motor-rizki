@@ -22,22 +22,28 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="grid min-h-dvh bg-white text-stone-900 lg:grid-cols-[minmax(0,1fr)_minmax(28rem,36rem)]">
-      <section className="flex flex-col bg-accent px-6 py-8 text-white sm:px-14 lg:py-14">
-        <div className="my-auto max-w-lg py-6">
-          <span className="font-display inline-flex size-[88px] items-center justify-center rounded-xl border-[3px] border-white text-3xl tracking-wide" aria-hidden>
-            CMR
-          </span>
-          <h1 className="font-display mt-6 text-5xl uppercase leading-none tracking-wide sm:text-6xl">{db?.settings.businessName ?? "CUCI MOTOR RIZKY"}</h1>
-          <p className="mt-4 text-[17px] leading-relaxed text-white/90">{db?.settings.tagline ?? "Bersih, Kinclong, Pikiran Jernih"}</p>
-          <ul className="mt-6 hidden list-disc space-y-2.5 pl-5 text-[15px] text-white/90 sm:block">
-            <li>Kasir cepat sesuai daftar harga spanduk</li>
-            <li>Kas, laporan & grafik harian</li>
-            <li>Loyalti 10x cuci gratis 1</li>
+    <div className="flex min-h-dvh flex-col bg-white text-stone-900 lg:grid lg:grid-cols-[minmax(0,1fr)_minmax(28rem,34rem)]">
+      <section className="flex flex-col justify-center border-b border-line bg-white px-6 py-5 sm:px-14 lg:border-r lg:border-b-0 lg:py-14">
+        <div className="mx-auto w-full max-w-2xl">
+          <h1 className="sr-only">{db?.settings.businessName ?? "CUCI MOTOR RIZKY"}</h1>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/header.png" alt="Cuci Motor Rizky — Bersih, Kinclong, Pikiran Jernih" width={757} height={197} className="h-auto w-full" />
+          <div
+            aria-hidden
+            className="mt-6 h-3 w-full rounded-sm"
+            style={{ backgroundImage: "repeating-conic-gradient(#111 0 25%, #fff 0 50%)", backgroundSize: "12px 12px" }}
+          />
+          <ul className="mt-6 hidden gap-3 text-[13.5px] text-stone-700 sm:grid sm:grid-cols-3">
+            {["Kasir cepat sesuai daftar harga spanduk", "Kas, laporan & grafik harian", "Loyalti 10x cuci gratis 1"].map((t) => (
+              <li key={t} className="rounded-lg border border-line bg-soft px-3 py-2.5">
+                <span className="mb-1 block h-1 w-6 bg-ink" aria-hidden />
+                {t}
+              </li>
+            ))}
           </ul>
         </div>
       </section>
-      <section className="flex items-center justify-center px-4 py-10 sm:px-8">
+      <section className="flex flex-1 items-start justify-center bg-soft px-4 py-6 sm:px-8 lg:items-center lg:py-10">
         <div className="w-full max-w-md overflow-hidden rounded-xl border border-line bg-white">
           <form onSubmit={submit} className="space-y-4 p-6">
             <div className="flex items-center gap-4">

@@ -1,19 +1,19 @@
 @import "tailwindcss";
 
 @theme {
-  /* Mengikuti gaya JHOPTIK: merah merek + netral stone */
+  /* Tata letak gaya JHOPTIK, warna hitam-putih sesuai spanduk */
   --color-ink: #1c1917;
   --color-muted: #78716c;
   --color-line: #e7e5e4;
   --color-paper: #ffffff;
   --color-soft: #fafaf9;
   --color-side: #f5f5f4;
-  --color-accent: #d0021b;
-  --color-accent-hover: #a80217;
-  --color-accent-50: #fef2f3;
-  --color-accent-100: #fde3e6;
-  --color-accent-200: #fbc9cf;
-  --color-ok: #047857;
+  --color-accent: #111111;
+  --color-accent-hover: #000000;
+  --color-accent-50: #f5f5f4;
+  --color-accent-100: #e7e5e4;
+  --color-accent-200: #a8a29e;
+  --color-ok: #111111;
   --font-display: var(--font-oswald), "Arial Narrow", Impact, sans-serif;
   --font-sans: var(--font-jakarta), "Segoe UI", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 }

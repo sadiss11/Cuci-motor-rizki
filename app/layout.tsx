@@ -11,7 +11,7 @@ export const metadata: Metadata = {
 const display = Oswald({ subsets: ["latin"], weight: ["600", "700"], variable: "--font-oswald" });
 const sans = Plus_Jakarta_Sans({ subsets: ["latin"], variable: "--font-jakarta" });
 
-export const viewport: Viewport = { width: "device-width", initialScale: 1, themeColor: "#d0021b" };
+export const viewport: Viewport = { width: "device-width", initialScale: 1, themeColor: "#111111" };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (

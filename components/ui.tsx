@@ -79,9 +79,9 @@ export function Badge({ children, tone = "neutral" }: { children: ReactNode; ton
       className={cx(
         "inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-medium",
         tone === "neutral" && "bg-stone-100 text-stone-600",
-        tone === "ok" && "bg-emerald-50 text-emerald-700",
-        tone === "warn" && "bg-amber-50 text-amber-800",
-        tone === "bad" && "bg-accent-50 text-accent-hover",
+        tone === "ok" && "bg-stone-900 text-white",
+        tone === "warn" && "bg-stone-200 text-stone-800",
+        tone === "bad" && "border border-stone-400 bg-white text-stone-500 line-through",
         tone === "dark" && "bg-stone-900 text-white",
       )}
     >

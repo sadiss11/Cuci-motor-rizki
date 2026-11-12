@@ -121,7 +121,7 @@ export default function PengaturanPage() {
                       </td>
                     ))}
                     <td className="px-5 py-2">
-                      <input type="checkbox" className="h-4 w-4 accent-[#c8102e]" checked={x.active} onChange={(e) => setServices((l) => l.map((y) => (y.id === x.id ? { ...y, active: e.target.checked } : y)))} aria-label="Aktif" />
+                      <input type="checkbox" className="h-4 w-4 accent-black" checked={x.active} onChange={(e) => setServices((l) => l.map((y) => (y.id === x.id ? { ...y, active: e.target.checked } : y)))} aria-label="Aktif" />
                     </td>
                   </tr>
                 ))}

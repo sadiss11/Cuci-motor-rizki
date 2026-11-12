@@ -197,7 +197,7 @@ function Charts({ db, s, rows, group }: { db: DB; s: ReturnType<typeof summarize
           axisFormat={compactRp}
         />
       </ChartCard>
-      <ChartCard title="Selisih operasional" desc="Kas masuk − kas keluar. Biru = surplus, merah = minus" table={{ head: ["Periode", "Selisih"], rows: asc.map((r) => [r.key, rupiah(r.masuk - r.keluar)]) }}>
+      <ChartCard title="Selisih operasional" desc="Kas masuk − kas keluar. Hitam = surplus (di atas nol), abu-abu = minus (di bawah nol)" table={{ head: ["Periode", "Selisih"], rows: asc.map((r) => [r.key, rupiah(r.masuk - r.keluar)]) }}>
         <ColumnChart
           data={pts.map((p) => ({ label: p.label, full: p.full, values: [p.masuk - p.keluar] }))}
           series={[{ name: "Selisih", color: VIZ.s1 }]}

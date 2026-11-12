@@ -168,11 +168,11 @@ Tips: jika hanya berhenti sementara, cukup hilangkan centang "Aktif".`)) return;
                 </div>
               )}
               <label className="flex items-center gap-2 text-sm">
-                <input type="checkbox" className="h-4 w-4 accent-[#c8102e]" checked={edit.targetBonus} onChange={(e) => setEdit({ ...edit, targetBonus: e.target.checked })} />
+                <input type="checkbox" className="h-4 w-4 accent-black" checked={edit.targetBonus} onChange={(e) => setEdit({ ...edit, targetBonus: e.target.checked })} />
                 Ikut bonus target jumlah motor
               </label>
               <label className="flex items-center gap-2 text-sm">
-                <input type="checkbox" className="h-4 w-4 accent-[#c8102e]" checked={edit.active} onChange={(e) => setEdit({ ...edit, active: e.target.checked })} />
+                <input type="checkbox" className="h-4 w-4 accent-black" checked={edit.active} onChange={(e) => setEdit({ ...edit, active: e.target.checked })} />
                 Aktif
               </label>
               {err && <p className="text-sm text-accent" role="alert">{err}</p>}
@@ -448,7 +448,7 @@ function PayrollDetail({ emp, range }: { emp: Employee; range: Range }) {
     <Card title={`Rincian · ${emp.name}`}>
       <div className="space-y-4 text-sm">
         {paid && (
-          <div className="rounded-md border border-ok bg-[#e7f3ec] p-2 text-xs text-ok">
+          <div className="rounded-md border border-stone-300 bg-stone-50 p-2 text-xs text-ok">
             Sudah dibayar untuk {paid.from} s.d. {paid.to} ({rupiah(paid.total)}). Lihat riwayat di bawah.
           </div>
         )}

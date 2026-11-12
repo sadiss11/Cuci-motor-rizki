@@ -34,27 +34,16 @@ export const NAV: { href: string; label: string; roles: Role[]; icon: LucideIcon
   { href: "/pengaturan", label: "Pengaturan", roles: ["owner"], icon: Settings2 },
 ];
 
-export function Logo({ small, light }: { small?: boolean; light?: boolean }) {
-  return (
-    <span className="flex items-center gap-2.5">
-      <span
-        className={cx(
-          "font-display inline-flex shrink-0 items-center justify-center rounded-lg text-[15px] leading-none tracking-wide",
-          light ? "border-2 border-white text-white" : "bg-accent text-white",
-          small ? "size-9" : "size-10",
-        )}
-        aria-hidden
-      >
+/** Logo: gambar spanduk kepala (hitam-putih); saat sidebar diciutkan tampil kotak "CMR". */
+export function Logo({ small }: { small?: boolean }) {
+  if (small)
+    return (
+      <span className="font-display inline-flex size-9 shrink-0 items-center justify-center rounded-lg bg-ink text-[14px] leading-none tracking-wide text-white" aria-label="Cuci Motor Rizky">
         CMR
       </span>
-      {!small && (
-        <span className="leading-tight">
-          <span className={cx("font-display block text-[17px] uppercase tracking-wide", light ? "text-white" : "text-stone-900")}>Cuci Motor Rizky</span>
-          <span className={cx("block text-[11px]", light ? "text-white/80" : "text-stone-500")}>Kasir & loyalti</span>
-        </span>
-      )}
-    </span>
-  );
+    );
+  // eslint-disable-next-line @next/next/no-img-element
+  return <img src="/header.png" alt="Cuci Motor Rizky — Bersih, Kinclong, Pikiran Jernih" width={757} height={197} className="h-auto w-full max-w-[220px] mix-blend-multiply" />;
 }
 
 export function Shell({ children }: { children: React.ReactNode }) {
@@ -122,7 +111,7 @@ export function Shell({ children }: { children: React.ReactNode }) {
               <Menu className="size-4" />
             )}
           </button>
-          <Link href={role === "owner" ? "/dashboard" : "/kasir"} className={cx("flex justify-center", open ? "my-5" : "my-4")}>
+          <Link href={role === "owner" ? "/dashboard" : "/kasir"} className={cx("flex justify-center", open ? "my-4" : "my-4")}>
             <Logo small={!open} />
           </Link>
         </div>
@@ -221,8 +210,8 @@ export function Shell({ children }: { children: React.ReactNode }) {
 
       <main id="konten-utama" className={cx("min-h-full px-4 pt-6 pb-24 transition-all sm:px-6 md:pt-8 md:pb-10 lg:px-[26px]", open ? "md:ml-[245px]" : "md:ml-14")}>
         <div className="mx-auto max-w-[1600px]">
-          <div className="no-print mb-4 flex items-center gap-2 rounded-lg border border-amber-200 bg-amber-50 px-3 py-1.5 text-[12px] text-amber-900">
-            <span className="size-1.5 shrink-0 rounded-full bg-amber-500" aria-hidden />
+          <div className="no-print mb-4 flex items-center gap-2 rounded-lg border border-stone-300 bg-white px-3 py-1.5 text-[12px] text-stone-700">
+            <span className="size-1.5 shrink-0 rounded-full bg-stone-900" aria-hidden />
             Mode demo — data tersimpan di browser ini, belum persisten di server.
           </div>
           {children}
